@@ -1,28 +1,5 @@
 const { gql, ApolloServer } = require("apollo-server");
 
-const typeDefs = gql`
-    type Usuario {
-        id: ID!
-        idade: Int
-        salario: Float
-        nome: String
-        ativo: Boolean
-        tecnologias: [String!]
-    }
-
-    type Produto {
-        nome: String!
-        valor: Float
-        typo: String
-    }
-
-    type Query {
-        usuarios: [Usuario]
-        produtos: [Produto]
-        usuario (id: Int, nome: String): Usuario
-    }
-`
-
 const usuarios = [
     {
         id: 123,
@@ -30,7 +7,8 @@ const usuarios = [
         salario: 1000.32,
         nome: "Raul",
         ativo: true,
-        tecnologias: ['GraphQL', 'NodeJS']
+        tecnologias: ['GraphQL', 'NodeJS'],
+        perfil: 1
     },
     {
         id: 22,
@@ -63,7 +41,48 @@ const produtos = [
     }
 ]
 
+const typeDefs = gql`
+    type Usuario {
+        id: ID!
+        idade: Int
+        salario: Float
+        nome: String
+        ativo: Boolean
+        tecnologias: [String!]
+        perfil: Perfil
+    }
+
+    type Produto {
+        nome: String!
+        valor: Float
+        typo: String
+    }
+
+    type Perfil {
+        id: ID!
+        nome: String!
+    }
+
+    type Query {
+        usuarios: [Usuario]
+        produtos: [Produto]
+        usuario (id: Int, nome: String): Usuario
+        perfis: [Perfil]
+        perfil (id: ID!): Perfil
+    }
+`
+
+const perfis = [
+    { id: 1, nome: "Administrador" },
+    { id: 2, nome: "Usuário" }
+]
+
 const resolvers = {
+    Usuario: {
+        perfil(usuario) {
+            return perfis.find(perfil => perfil.id == usuario.perfil)
+        }
+    },
     Query: {
         usuarios() {
             return usuarios
@@ -75,6 +94,12 @@ const resolvers = {
             let usuario = usuarios.find(usuario => usuario.id == args.id)
             if (args.id && usuario) return usuario
             else return usuarios.find(usuario => usuario.nome == args.nome)
+        },
+        perfis() {
+            return perfis
+        },
+        perfil(_, args) {
+            return perfis.find(perfil => perfil.id == args.id)
         }
     }
 }
