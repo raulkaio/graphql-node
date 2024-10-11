@@ -1,0 +1,15 @@
+enum TipoPerfil {
+    ADMIN
+    USER
+}
+
+type Perfil {
+    id: ID!
+    nome: String!
+    tipo: TipoPerfil
+}
+
+type Query {
+    perfis: [Perfil]
+    perfil (id: ID!): Perfil
+}
